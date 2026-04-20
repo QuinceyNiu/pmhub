@@ -50,3 +50,7 @@ nbdist/
 application-prod.yml
 
 *.jar
+docker/.env
+docker/mysql/data/
+docker/nacos/logs/
+docker/redis/data/

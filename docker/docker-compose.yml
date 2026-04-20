@@ -2,11 +2,15 @@ version : '3.8'
 services:
   pmhub-nacos:
     container_name: pmhub-nacos
-    image: nacos/nacos-server
+    image: pmhub-nacos:2.2.3
     build:
       context: ./nacos
     environment:
       - MODE=standalone
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_TOKEN=${NACOS_AUTH_TOKEN}
+      - NACOS_AUTH_IDENTITY_KEY=${NACOS_AUTH_IDENTITY_KEY}
+      - NACOS_AUTH_IDENTITY_VALUE=${NACOS_AUTH_IDENTITY_VALUE}
     volumes:
       - ./nacos/logs/:/home/nacos/logs
       - ./nacos/conf/application.properties:/home/nacos/conf/application.properties
@@ -18,7 +22,7 @@ services:
       - pmhub-mysql
   pmhub-mysql:
     container_name: pmhub-mysql
-    image: mysql:5.7
+    image: mysql:8.0
     build:
       context: ./mysql
     ports:
@@ -33,10 +37,11 @@ services:
           '--character-set-server=utf8mb4',
           '--collation-server=utf8mb4_unicode_ci',
           '--default-time-zone=+8:00',
-          '--lower-case-table-names=2'
+          '--lower-case-table-names=2',
+          '--default-authentication-plugin=mysql_native_password'
         ]
     environment:
-      MYSQL_ROOT_PASSWORD: laigeoffer-pmhub #上线修改为复杂密码，否则很容易被黑
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
   pmhub-redis:
     container_name: pmhub-redis
     image: redis

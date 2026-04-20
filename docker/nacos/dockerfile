@@ -1,8 +1,22 @@
-# 基础镜像
-FROM nacos/nacos-server
-# author
-MAINTAINER canghe
+FROM eclipse-temurin:8-jre-jammy
 
+ENV NACOS_VERSION=2.2.3 \
+    NACOS_HOME=/home/nacos \
+    MODE=standalone \
+    TZ=Asia/Shanghai
 
-# 复制conf文件到docker路径
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates unzip \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+    cd /home; \
+    curl -fsSL -o nacos.zip "https://github.com/alibaba/nacos/releases/download/${NACOS_VERSION}/nacos-server-${NACOS_VERSION}.zip"; \
+    unzip -q nacos.zip; \
+    rm -f nacos.zip
+
 COPY ./conf/application.properties /home/nacos/conf/application.properties
+
+WORKDIR /home/nacos
+EXPOSE 8848 9848 9849
+
+CMD ["sh","-c","bin/startup.sh -m ${MODE} && tail -F logs/start.out"]
